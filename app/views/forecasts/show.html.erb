@@ -1,0 +1,85 @@
+<% if flash[:error] %>
+  <div style="padding: 20px; background: #f8d7da; border-radius: 8px; border-left: 4px solid #dc3545; margin-bottom: 20px;">
+    <strong style="color: #721c24;">❌ Error:</strong>
+    <p style="color: #721c24; margin-top: 5px;"><%= flash[:error] %></p>
+  </div>
+<% end %>
+
+<% if @forecast %>
+<div class="card">
+  <div class="current-weather">
+    <div class="location">
+      📍 <%= @forecast.formatted_address %>
+    </div>
+    
+    <div class="temperature">
+      <%= @forecast.current_temp_display %>
+    </div>
+    
+    <div class="conditions">
+      <%= @forecast.current_conditions %>
+    </div>
+    
+    <div class="high-low">
+      <div>
+        <strong>High:</strong> <%= @forecast.high_temp_display %>
+      </div>
+      <div>
+        <strong>Low:</strong> <%= @forecast.low_temp_display %>
+      </div>
+    </div>
+
+    <div class="cache-indicator <%= @forecast.from_cache? ? 'cached' : 'fresh' %>">
+      <%= @forecast.from_cache? ? '💾' : '🔄' %> <%= @forecast.cache_status %>
+    </div>
+  </div>
+
+  <% if @forecast.detailed_forecast.present? %>
+    <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 30px;">
+      <h3 style="color: #667eea; margin-bottom: 10px;">Today's Forecast</h3>
+      <p style="color: #555; line-height: 1.6;"><%= @forecast.detailed_forecast %></p>
+    </div>
+  <% end %>
+
+  <% if @forecast.extended_forecast.any? %>
+    <div class="extended-forecast">
+      <h2>📅 Extended Forecast</h2>
+      <div class="forecast-grid">
+        <% @forecast.extended_forecast.each do |period| %>
+          <div class="forecast-item">
+            <h3><%= period[:name] %></h3>
+            <div class="temp">
+              <%= period[:temperature] %>°<%= period[:temperature_unit] %>
+            </div>
+            <div class="description">
+              <%= period[:short_forecast] %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="back-link">
+    <%= link_to "← Search Another Address", root_path, class: "btn" %>
+  </div>
+</div>
+
+  <% if @forecast.from_cache? %>
+    <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+      <strong style="color: #856404;">ℹ️ Cached Data:</strong>
+      <p style="color: #856404; margin-top: 5px;">
+        This forecast was retrieved from cache to improve performance. 
+        Data for zip code <strong><%= @forecast.zip_code %></strong> will be refreshed after 30 minutes.
+      </p>
+    </div>
+  <% else %>
+    <div style="margin-top: 20px; padding: 15px; background: #d4edda; border-radius: 8px; border-left: 4px solid #28a745;">
+      <strong style="color: #155724;">✓ Fresh Data:</strong>
+      <p style="color: #155724; margin-top: 5px;">
+        This forecast was just fetched from the Open-Meteo API. 
+        Future requests for zip code <strong><%= @forecast.zip_code %></strong> will use cached data for the next 30 minutes.
+      </p>
+    </div>
+  <% end %>
+<% end %>

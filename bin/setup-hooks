@@ -1,0 +1,107 @@
+#!/bin/bash
+
+# Setup Git Hooks Script
+# This script installs pre-push hooks for code quality checks
+
+echo "🔧 Setting up Git pre-push hooks..."
+echo ""
+
+# Check if we're in a git repository
+if [ ! -d .git ]; then
+  echo "❌ Error: Not in a git repository root directory"
+  echo "Please run this script from the project root"
+  exit 1
+fi
+
+# Create hooks directory if it doesn't exist
+mkdir -p .git/hooks
+
+# Copy pre-push hook
+cat > .git/hooks/pre-push << 'EOF'
+#!/bin/bash
+
+# Git Pre-Push Hook
+# Runs tests, linting, and security checks before allowing push
+# This ensures code quality and prevents pushing broken code
+
+echo "🔍 Running pre-push checks..."
+echo ""
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Track if any checks fail
+FAILED=0
+
+# 1. Run RSpec Tests
+echo "📝 Running RSpec tests..."
+bundle exec rspec --format progress
+if [ $? -ne 0 ]; then
+  echo -e "${RED}❌ Tests failed! Fix failing tests before pushing.${NC}"
+  FAILED=1
+else
+  echo -e "${GREEN}✅ All tests passed!${NC}"
+fi
+echo ""
+
+# 2. Run RuboCop Linting
+echo "🔧 Running RuboCop linting..."
+bundle exec rubocop
+if [ $? -ne 0 ]; then
+  echo -e "${YELLOW}⚠️  RuboCop found style issues!${NC}"
+  echo -e "${YELLOW}Run 'bundle exec rubocop --autocorrect-all' to fix automatically.${NC}"
+  FAILED=1
+else
+  echo -e "${GREEN}✅ RuboCop checks passed!${NC}"
+fi
+echo ""
+
+# 3. Run Brakeman Security Scan
+echo "🔒 Running Brakeman security scan..."
+bundle exec brakeman -q --no-pager
+if [ $? -ne 0 ]; then
+  echo -e "${RED}❌ Brakeman found security vulnerabilities!${NC}"
+  echo -e "${RED}Review and fix security issues before pushing.${NC}"
+  FAILED=1
+else
+  echo -e "${GREEN}✅ No security vulnerabilities found!${NC}"
+fi
+echo ""
+
+# Final result
+if [ $FAILED -eq 1 ]; then
+  echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo -e "${RED}❌ PRE-PUSH CHECKS FAILED!${NC}"
+  echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo ""
+  echo "Please fix the issues above before pushing."
+  echo ""
+  echo "To skip these checks (NOT RECOMMENDED), use:"
+  echo "  git push --no-verify"
+  echo ""
+  exit 1
+else
+  echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo -e "${GREEN}✅ ALL PRE-PUSH CHECKS PASSED!${NC}"
+  echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  echo ""
+  echo "🚀 Proceeding with push..."
+  echo ""
+  exit 0
+fi
+EOF
+
+# Make the hook executable
+chmod +x .git/hooks/pre-push
+
+echo "✅ Pre-push hook installed successfully!"
+echo ""
+echo "The hook will now run automatically before every 'git push'"
+echo ""
+echo "To test it, try:"
+echo "  git push origin main"
+echo ""
+echo "📚 For more information, see PRE_PUSH_HOOKS.md"

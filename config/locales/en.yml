@@ -1,0 +1,38 @@
+en:
+  errors:
+    geocoding:
+      blank_address: "Address cannot be blank"
+      not_found: "Address not found. Please enter a valid US address."
+      failed: "Unable to find that address. Please check the spelling and try again."
+      timeout: "Address lookup timed out. Please try again."
+      service_unavailable: "Address lookup service is temporarily unavailable. Please try again later."
+    weather:
+      fetch_failed: "Unable to fetch weather data for this location. Please try again."
+      api_error: "We're having trouble getting weather data right now. Please try again in a moment."
+      cache_error: "There was a problem retrieving cached data. Please try again."
+      parse_error: "Unable to process weather data. The service may be experiencing issues. Please try again."
+      invalid_response: "Received invalid weather data. Please try again in a moment."
+      invalid_request: "Invalid weather request. Please check your location and try again."
+      service_unavailable: "Weather service is temporarily unavailable. Showing cached data if available."
+    forecast:
+      address_required: "Please enter an address to get the weather forecast."
+      retrieval_failed: "Unable to retrieve the weather forecast. Please try again."
+    timezone:
+      detection_failed: "Unable to detect your timezone. Using UTC as default."
+      geocoding_failed: "Unable to determine timezone for this location. Using UTC as default."
+    general:
+      unexpected_error: "Something went wrong. Please try again or contact support if the problem persists."
+      network_error: "Network error occurred. Please check your connection and try again."
+      service_unavailable: "Service temporarily unavailable. Please try again later."
+  
+  services:
+    base:
+      success: "Operation completed successfully"
+    geocoding:
+      success: "Address geocoded successfully"
+    weather:
+      cached: "Weather data retrieved from cache"
+      fresh: "Fresh weather data retrieved"
+    timezone:
+      detected: "Timezone detected: %{timezone}"
+      default: "Using default timezone: UTC"

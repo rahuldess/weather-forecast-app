@@ -1,0 +1,693 @@
+<style>
+  .search-container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  
+  .search-wrapper {
+    position: relative;
+    background: white;
+    border-radius: 32px;
+    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+    display: flex;
+    align-items: center;
+    padding: 12px 24px;
+    transition: box-shadow 0.2s;
+  }
+  
+  .search-wrapper:hover {
+    box-shadow: 0 2px 8px rgba(32, 33, 36, 0.35);
+  }
+  
+  .search-wrapper:focus-within {
+    box-shadow: 0 2px 8px rgba(32, 33, 36, 0.35);
+  }
+  
+  .search-icon {
+    color: #5f6368;
+    font-size: 20px;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .autocomplete-container {
+    position: relative;
+    flex: 1;
+  }
+  
+  #address-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    padding: 8px 0;
+    background: transparent;
+    color: #202124;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  #address-input::placeholder {
+    color: #5f6368;
+  }
+  
+  .autocomplete-suggestions {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: -16px;
+    right: -16px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(32, 33, 36, 0.28);
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+  }
+  
+  .autocomplete-suggestion {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color 0.1s;
+    border-bottom: 1px solid #f1f3f4;
+  }
+  
+  .autocomplete-suggestion:last-child {
+    border-bottom: none;
+  }
+  
+  .autocomplete-suggestion:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .suggestion-main {
+    font-size: 14px;
+    color: #202124;
+    margin-bottom: 2px;
+  }
+  
+  .suggestion-secondary {
+    font-size: 12px;
+    color: #5f6368;
+  }
+  
+  .location-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 8px;
+  }
+  
+  .use-location-btn {
+    background: transparent;
+    border: 1px solid #dadce0;
+    border-radius: 16px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: #1a73e8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  
+  .use-location-btn:hover:not(:disabled) {
+    background-color: #f8f9fa;
+    border-color: #dadce0;
+  }
+  
+  .use-location-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .use-location-btn .location-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .use-location-btn .spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #1a73e8;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  
+  .use-location-btn.loading .spinner {
+    display: inline-block;
+  }
+  
+  .use-location-btn.loading .location-icon {
+    display: none;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .search-btn {
+    background: transparent;
+    border: none;
+    color: #1a73e8;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+  
+  .search-btn:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .divider {
+    width: 1px;
+    height: 24px;
+    background: #dadce0;
+    margin: 0 4px;
+  }
+  
+  /* Override card styles for cleaner look */
+  .card {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    border: none;
+  }
+  
+  .header-subtitle {
+    text-align: center;
+    color: #5f6368;
+    font-size: 14px;
+    margin-bottom: 32px;
+  }
+  
+  /* Temperature Toggle Switch */
+  .temp-toggle-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
+  }
+  
+  .temp-toggle-switch {
+    position: relative;
+    width: 60px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background 0.3s;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+  }
+  
+  .temp-toggle-switch.active {
+    background: rgba(255, 255, 255, 0.4);
+  }
+  
+  .temp-toggle-slider {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .temp-toggle-switch.active .temp-toggle-slider {
+    transform: translateX(30px);
+  }
+  
+  .temp-toggle-labels {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+  
+  .temp-toggle-label {
+    opacity: 0.6;
+    transition: opacity 0.3s;
+  }
+  
+  .temp-toggle-label.active {
+    opacity: 1;
+  }
+</style>
+
+<div class="card">
+  <div class="search-container">
+    <%= form_with url: root_path, method: :get, local: true, id: 'forecast-form' do |f| %>
+      <div class="search-wrapper">
+        <div class="search-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        
+        <div class="autocomplete-container">
+          <%= f.text_field :address, 
+              id: 'address-input',
+              placeholder: "Search for a city or address",
+              required: true,
+              autofocus: true,
+              autocomplete: 'off' %>
+          <div id="suggestions" class="autocomplete-suggestions"></div>
+        </div>
+        
+        <div class="location-actions">
+          <div class="divider"></div>
+          
+          <button type="button" id="use-location-btn" class="use-location-btn" title="Use your precise GPS location">
+            <span class="spinner"></span>
+            <span class="location-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                <path d="M12 2V5M12 19V22M22 12H19M5 12H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="btn-text">Use precise location</span>
+          </button>
+          
+          <div class="divider"></div>
+          
+          <%= f.submit "Search", class: 'search-btn', data: { disable_with: "..." } %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Forecast Results Section -->
+<% if flash[:error] %>
+  <div style="padding: 20px; background: #f8d7da; border-radius: 8px; border-left: 4px solid #dc3545; margin: 30px auto; max-width: 1100px;">
+    <strong style="color: #721c24;">❌ Error:</strong>
+    <p style="color: #721c24; margin-top: 5px;"><%= flash[:error] %></p>
+  </div>
+<% end %>
+
+<% if @forecast %>
+<div style="margin-top: 40px;">
+  <div class="card">
+    <div class="current-weather" style="position: relative;">
+      <!-- Temperature Unit Toggle Switch -->
+      <div class="temp-toggle-container">
+        <div class="temp-toggle-labels">
+          <span class="temp-toggle-label active" id="label-f">°F</span>
+          <div class="temp-toggle-switch" id="temp-toggle">
+            <div class="temp-toggle-slider"></div>
+          </div>
+          <span class="temp-toggle-label" id="label-c">°C</span>
+        </div>
+      </div>
+      
+      <div class="location">
+        📍 <%= @forecast.formatted_address %>
+      </div>
+      
+      <div class="temperature">
+        <span id="current-temp"><%= @forecast.current_temperature %></span>°<span id="temp-unit">F</span>
+      </div>
+      
+      <div class="conditions">
+        <%= @forecast.current_conditions %>
+      </div>
+      
+      <div class="high-low">
+        <div>
+          <strong>High:</strong> <span class="high-temp" data-f="<%= @forecast.high_temperature %>"><%= @forecast.high_temperature %></span>°<span class="unit-display">F</span>
+        </div>
+        <div>
+          <strong>Low:</strong> <span class="low-temp" data-f="<%= @forecast.low_temperature %>"><%= @forecast.low_temperature %></span>°<span class="unit-display">F</span>
+        </div>
+      </div>
+
+      <div class="cache-indicator <%= @forecast.from_cache? ? 'cached' : 'fresh' %>">
+        <%= @forecast.from_cache? ? '💾' : '🔄' %> <%= @forecast.cache_status %>
+      </div>
+      
+      <% if @user_timezone %>
+        <div style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 6px; font-size: 13px; color: #1565c0;">
+          🌍 Timezone: <strong><%= @user_timezone %></strong>
+        </div>
+      <% end %>
+    </div>
+
+    <% if @forecast.detailed_forecast.present? %>
+      <div style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 30px;">
+        <h3 style="color: #667eea; margin-bottom: 10px;">Today's Forecast</h3>
+        <p style="color: #555; line-height: 1.6;"><%= @forecast.detailed_forecast %></p>
+      </div>
+    <% end %>
+
+    <% if @forecast.extended_forecast.any? %>
+      <div class="extended-forecast">
+        <h2>📅 Extended Forecast</h2>
+        <div class="forecast-grid">
+          <% @forecast.extended_forecast.each do |period| %>
+            <div class="forecast-item">
+              <h3><%= period[:name] %></h3>
+              <div class="temp">
+                <span class="forecast-temp" data-f="<%= period[:temperature] %>"><%= period[:temperature] %></span>°<span class="unit-display">F</span>
+              </div>
+              <div class="description">
+                <%= period[:short_forecast] %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+<% end %>
+
+<script>
+  // Nominatim (OpenStreetMap) Autocomplete Implementation - 100% FREE!
+  const input = document.getElementById('address-input');
+  const suggestionsDiv = document.getElementById('suggestions');
+  let debounceTimer;
+  
+  // Listen for input changes
+  input.addEventListener('input', function(e) {
+    clearTimeout(debounceTimer);
+    const query = e.target.value.trim();
+    
+    if (query.length < 3) {
+      suggestionsDiv.style.display = 'none';
+      return;
+    }
+    
+    // Debounce to respect Nominatim's rate limit (1 req/sec)
+    debounceTimer = setTimeout(() => {
+      fetchSuggestions(query);
+    }, 500);
+  });
+  
+  // Fetch address suggestions from Nominatim (OpenStreetMap)
+  async function fetchSuggestions(query) {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5`;
+    
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'WeatherForecastApp/1.0' // Nominatim requires a User-Agent
+        }
+      });
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        displaySuggestions(data);
+      } else {
+        suggestionsDiv.style.display = 'none';
+      }
+    } catch (error) {
+      console.error('Error fetching address suggestions:', error);
+      suggestionsDiv.style.display = 'none';
+    }
+  }
+  
+  // Display the suggestions in the dropdown
+  function displaySuggestions(places) {
+    suggestionsDiv.innerHTML = '';
+    
+    places.forEach(place => {
+      const div = document.createElement('div');
+      div.className = 'autocomplete-suggestion';
+      
+      // Format the display name nicely
+      const displayName = place.display_name;
+      const parts = displayName.split(',');
+      const mainPart = parts[0];
+      const secondaryPart = parts.slice(1, 3).join(',').trim();
+      
+      div.innerHTML = `
+        <div class="suggestion-main">${mainPart}</div>
+        ${secondaryPart ? `<div class="suggestion-secondary">${secondaryPart}</div>` : ''}
+      `;
+      
+      div.addEventListener('click', () => {
+        input.value = place.display_name;
+        suggestionsDiv.style.display = 'none';
+        document.getElementById('forecast-form').submit();
+      });
+      
+      suggestionsDiv.appendChild(div);
+    });
+    
+    suggestionsDiv.style.display = 'block';
+  }
+  
+  // Hide suggestions when clicking outside
+  document.addEventListener('click', function(e) {
+    if (e.target !== input && !suggestionsDiv.contains(e.target)) {
+      suggestionsDiv.style.display = 'none';
+    }
+  });
+  
+  // Handle keyboard navigation
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      suggestionsDiv.style.display = 'none';
+    }
+  });
+  
+  // ============================================
+  // GEOLOCATION FUNCTIONALITY
+  // ============================================
+  
+  const useLocationBtn = document.getElementById('use-location-btn');
+  const form = document.getElementById('forecast-form');
+  
+  // Handle "Use precise location" button click
+  useLocationBtn.addEventListener('click', async function() {
+    // Show loading state
+    useLocationBtn.classList.add('loading');
+    useLocationBtn.disabled = true;
+    const buttonText = useLocationBtn.querySelector('.btn-text');
+    const originalText = buttonText.textContent;
+    buttonText.textContent = 'Getting location...';
+    
+    // Use high-accuracy browser geolocation for precise location
+    try {
+      if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser. Please enter an address manually.');
+        resetButton();
+        return;
+      }
+      
+      const location = await getBrowserLocationPrecise();
+      
+      if (location) {
+        input.value = location;
+        form.submit();
+      } else {
+        alert('Could not determine your precise location. Please try again or enter an address manually.');
+        resetButton();
+      }
+    } catch (error) {
+      console.error('Error getting precise location:', error);
+      
+      let errorMessage = 'Unable to get your precise location. ';
+      if (error.code === 1) {
+        errorMessage += 'Please enable location access in your browser settings.';
+      } else if (error.code === 2) {
+        errorMessage += 'Location information is unavailable.';
+      } else if (error.code === 3) {
+        errorMessage += 'The request timed out. Please try again.';
+      } else {
+        errorMessage += 'Please try again or enter an address manually.';
+      }
+      
+      alert(errorMessage);
+      resetButton();
+    }
+    
+    function resetButton() {
+      useLocationBtn.classList.remove('loading');
+      useLocationBtn.disabled = false;
+      buttonText.textContent = originalText;
+    }
+  });
+  
+  // Get precise location using browser's geolocation API with high accuracy
+  function getBrowserLocationPrecise() {
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        async function(position) {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+          
+          try {
+            // Get precise address using coordinates
+            const location = await reverseGeocode(latitude, longitude, 'address,place');
+            resolve(location);
+          } catch (error) {
+            reject(error);
+          }
+        },
+        function(error) {
+          reject(error);
+        },
+        {
+          enableHighAccuracy: true, // Use high accuracy GPS
+          timeout: 10000,
+          maximumAge: 0 // Don't use cached position
+        }
+      );
+    });
+  }
+  
+  // Reverse geocode coordinates to location using Nominatim (100% FREE!)
+  async function reverseGeocode(latitude, longitude) {
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`;
+    
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'WeatherForecastApp/1.0'
+        }
+      });
+      const data = await response.json();
+      
+      if (data && data.display_name) {
+        return data.display_name;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error in reverse geocoding:', error);
+      return null;
+    }
+  }
+  
+  // ============================================
+  // TEMPERATURE UNIT TOGGLE (°F ↔ °C)
+  // ============================================
+  
+  const tempToggleSwitch = document.getElementById('temp-toggle');
+  const labelF = document.getElementById('label-f');
+  const labelC = document.getElementById('label-c');
+  let isCelsius = false;
+  
+  if (tempToggleSwitch) {
+    tempToggleSwitch.addEventListener('click', function() {
+      isCelsius = !isCelsius;
+      
+      if (isCelsius) {
+        // Convert to Celsius
+        tempToggleSwitch.classList.add('active');
+        labelF.classList.remove('active');
+        labelC.classList.add('active');
+        convertToCelsius();
+      } else {
+        // Convert to Fahrenheit
+        tempToggleSwitch.classList.remove('active');
+        labelF.classList.add('active');
+        labelC.classList.remove('active');
+        convertToFahrenheit();
+      }
+    });
+  }
+  
+  function convertToCelsius() {
+    // Update main temperature unit display
+    const tempUnit = document.getElementById('temp-unit');
+    if (tempUnit) tempUnit.textContent = 'C';
+    
+    // Update all unit displays
+    document.querySelectorAll('.unit-display').forEach(el => {
+      el.textContent = 'C';
+    });
+    
+    // Convert current temperature
+    const currentTemp = document.getElementById('current-temp');
+    if (currentTemp) {
+      const fahrenheit = parseFloat(currentTemp.textContent);
+      const celsius = Math.round((fahrenheit - 32) * 5 / 9);
+      currentTemp.textContent = celsius;
+    }
+    
+    // Convert high temperature
+    const highTemp = document.querySelector('.high-temp');
+    if (highTemp) {
+      const fahrenheit = parseFloat(highTemp.dataset.f);
+      const celsius = Math.round((fahrenheit - 32) * 5 / 9);
+      highTemp.textContent = celsius;
+    }
+    
+    // Convert low temperature
+    const lowTemp = document.querySelector('.low-temp');
+    if (lowTemp) {
+      const fahrenheit = parseFloat(lowTemp.dataset.f);
+      const celsius = Math.round((fahrenheit - 32) * 5 / 9);
+      lowTemp.textContent = celsius;
+    }
+    
+    // Convert extended forecast temperatures
+    document.querySelectorAll('.forecast-temp').forEach(temp => {
+      const fahrenheit = parseFloat(temp.dataset.f);
+      const celsius = Math.round((fahrenheit - 32) * 5 / 9);
+      temp.textContent = celsius;
+    });
+  }
+  
+  function convertToFahrenheit() {
+    // Update main temperature unit display
+    const tempUnit = document.getElementById('temp-unit');
+    if (tempUnit) tempUnit.textContent = 'F';
+    
+    // Update all unit displays
+    document.querySelectorAll('.unit-display').forEach(el => {
+      el.textContent = 'F';
+    });
+    
+    // Restore current temperature from original Fahrenheit value
+    const currentTemp = document.getElementById('current-temp');
+    if (currentTemp && currentTemp.dataset.originalTemp) {
+      currentTemp.textContent = currentTemp.dataset.originalTemp;
+    }
+    
+    // Restore high temperature
+    const highTemp = document.querySelector('.high-temp');
+    if (highTemp) {
+      highTemp.textContent = highTemp.dataset.f;
+    }
+    
+    // Restore low temperature
+    const lowTemp = document.querySelector('.low-temp');
+    if (lowTemp) {
+      lowTemp.textContent = lowTemp.dataset.f;
+    }
+    
+    // Restore extended forecast temperatures
+    document.querySelectorAll('.forecast-temp').forEach(temp => {
+      temp.textContent = temp.dataset.f;
+    });
+  }
+  
+  // Store original temperature value
+  const currentTempEl = document.getElementById('current-temp');
+  if (currentTempEl) {
+    currentTempEl.dataset.originalTemp = currentTempEl.textContent;
+  }
+</script>
