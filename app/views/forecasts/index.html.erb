@@ -421,7 +421,6 @@
         suggestionsDiv.style.display = 'none';
       }
     } catch (error) {
-      console.error('Error fetching address suggestions:', error);
       suggestionsDiv.style.display = 'none';
     }
   }
@@ -505,8 +504,6 @@
         resetButton();
       }
     } catch (error) {
-      console.error('Error getting precise location:', error);
-      
       let errorMessage = 'Unable to get your precise location. ';
       if (error.code === 1) {
         errorMessage += 'Please enable location access in your browser settings.';
@@ -532,6 +529,7 @@
   // Get precise location using browser's geolocation API with high accuracy
   function getBrowserLocationPrecise() {
     return new Promise((resolve, reject) => {
+      // First, try high accuracy
       navigator.geolocation.getCurrentPosition(
         async function(position) {
           const latitude = position.coords.latitude;
@@ -539,19 +537,40 @@
           
           try {
             // Get precise address using coordinates
-            const location = await reverseGeocode(latitude, longitude, 'address,place');
+            const location = await reverseGeocode(latitude, longitude);
             resolve(location);
           } catch (error) {
             reject(error);
           }
         },
-        function(error) {
-          reject(error);
+        async function(error) {
+          // Fallback: Try with lower accuracy settings
+          navigator.geolocation.getCurrentPosition(
+            async function(position) {
+              const latitude = position.coords.latitude;
+              const longitude = position.coords.longitude;
+              
+              try {
+                const location = await reverseGeocode(latitude, longitude);
+                resolve(location);
+              } catch (err) {
+                reject(err);
+              }
+            },
+            function(fallbackError) {
+              reject(fallbackError);
+            },
+            {
+              enableHighAccuracy: false, // Use lower accuracy (faster, more reliable)
+              timeout: 15000,
+              maximumAge: 300000 // Accept cached position up to 5 minutes old
+            }
+          );
         },
         {
-          enableHighAccuracy: true, // Use high accuracy GPS
-          timeout: 10000,
-          maximumAge: 0 // Don't use cached position
+          enableHighAccuracy: true, // Try high accuracy GPS first
+          timeout: 8000, // Shorter timeout for high accuracy
+          maximumAge: 0 // Don't use cached position for high accuracy
         }
       );
     });
@@ -575,7 +594,6 @@
       
       return null;
     } catch (error) {
-      console.error('Error in reverse geocoding:', error);
       return null;
     }
   }

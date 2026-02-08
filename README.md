@@ -192,7 +192,7 @@ asdf global ruby 3.3.6
 In your Terminal, go to where you downloaded this project:
 
 ```bash
-cd /Users/T946500/Desktop/weather_forecast_app
+cd /Users/ABC123/Desktop/weather_forecast_app
 ```
 
 ### Step 3: Install Required Components
@@ -204,6 +204,18 @@ bundle install
 ```
 
 This might take a few minutes. You'll see lots of text scrolling by - that's normal!
+
+**Note**: If you get an error about Bundler version (e.g., "Could not find 'bundler' (4.0.6)"), you need to install the correct Bundler version:
+
+```bash
+gem install bundler:4.0.6
+```
+
+Then try `bundle install` again. If you still have issues, make sure your terminal has loaded asdf properly - try restarting your terminal or running:
+
+```bash
+source ~/.zshrc  # or source ~/.bash_profile if using bash
+```
 
 ### Step 4: Set Up the Database
 
@@ -295,7 +307,7 @@ gem install bundler
 **Solution**: Make sure you're in the correct folder:
 
 ```bash
-cd /Users/T946500/Desktop/weather_forecast_app
+cd /Users/ABC123/Desktop/weather_forecast_app
 ```
 
 Then try starting again:
@@ -319,28 +331,6 @@ bundle exec rails server
 ### Problem: "Use My Location" doesn't work
 
 **Solution**: This feature only works when accessing the app from a public IP address. When running locally (localhost), it can't detect your location. Just type in your city name instead!
-
-## Project Structure (For the Curious)
-
-If you want to understand how the app is organized:
-
-```
-weather_forecast_app/
-├── app/                          # Main application code
-│   ├── controllers/              # Handles web requests
-│   ├── models/                   # Data structures
-│   ├── services/                 # Business logic (weather fetching, geocoding)
-│   └── views/                    # What you see in the browser
-├── config/                       # App settings
-├── spec/                         # Automated tests
-├── Gemfile                       # List of required components
-└── README.md                     # This file!
-```
-
-## Technical Details (For Developers)
-
-<details>
-<summary>Click to expand technical information</summary>
 
 ### Built With
 
@@ -439,31 +429,3 @@ Edit `.env` if you need to configure Redis or other settings for production.
 - Storage: Memory (development), Redis-ready (production)
 
 </details>
-
-## Need Help?
-
-If you run into any issues:
-
-1. Make sure you followed all installation steps in order
-2. Check the Troubleshooting section above
-3. Try stopping the app (`Ctrl + C`) and starting it again
-4. Make sure you have a stable internet connection
-
-## What's Next?
-
-Once you have the app running, you can:
-
-- Explore the code in the `app/` folder
-- Run the automated tests with `bundle exec rspec`
-- Try modifying the views in `app/views/forecasts/`
-- Add new features!
-
-## License
-
-This project was created as a demonstration application.
-
----
-
-**Enjoy checking the weather!** ☀️🌧️⛈️❄️
-
-Built with Ruby on Rails
