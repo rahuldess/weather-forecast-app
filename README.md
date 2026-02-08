@@ -139,7 +139,10 @@ The app automatically detects your location and timezone to show you relevant we
 4. You see the current weather and forecast for the next 7 days
 5. If you search the same area again within 30 minutes, you get instant results (no waiting!)
 
-<img width="935" height="1078" alt="image" src="https://github.com/user-attachments/assets/d37b7084-c2a1-44a7-9b94-00d749b7965b" />
+
+https://github.com/user-attachments/assets/b51d3949-bd04-43c6-ae41-3dad9310fa64
+
+
 
 ## What You Need Before Installing
 
