@@ -526,51 +526,35 @@
     }
   });
   
-  // Get precise location using browser's geolocation API with high accuracy
+  // Get location using browser's geolocation API with smart fallback strategy
   function getBrowserLocationPrecise() {
     return new Promise((resolve, reject) => {
-      // First, try high accuracy
+      // Start with more reliable, lower-accuracy approach
+      // This works better on most devices and is faster
       navigator.geolocation.getCurrentPosition(
         async function(position) {
           const latitude = position.coords.latitude;
           const longitude = position.coords.longitude;
           
           try {
-            // Get precise address using coordinates
             const location = await reverseGeocode(latitude, longitude);
-            resolve(location);
+            if (location) {
+              resolve(location);
+            } else {
+              reject(new Error('Could not reverse geocode location'));
+            }
           } catch (error) {
             reject(error);
           }
         },
-        async function(error) {
-          // Fallback: Try with lower accuracy settings
-          navigator.geolocation.getCurrentPosition(
-            async function(position) {
-              const latitude = position.coords.latitude;
-              const longitude = position.coords.longitude;
-              
-              try {
-                const location = await reverseGeocode(latitude, longitude);
-                resolve(location);
-              } catch (err) {
-                reject(err);
-              }
-            },
-            function(fallbackError) {
-              reject(fallbackError);
-            },
-            {
-              enableHighAccuracy: false, // Use lower accuracy (faster, more reliable)
-              timeout: 15000,
-              maximumAge: 300000 // Accept cached position up to 5 minutes old
-            }
-          );
+        function(error) {
+          // If standard accuracy fails, reject with the error
+          reject(error);
         },
         {
-          enableHighAccuracy: true, // Try high accuracy GPS first
-          timeout: 8000, // Shorter timeout for high accuracy
-          maximumAge: 0 // Don't use cached position for high accuracy
+          enableHighAccuracy: false, // Use network/WiFi location (faster, more reliable)
+          timeout: 20000, // Generous timeout
+          maximumAge: 600000 // Accept cached position up to 10 minutes old
         }
       );
     });
